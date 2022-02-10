@@ -83,12 +83,12 @@ public class CMinusScanner implements Scanner {
                         //Handle ints
                         if(Character.isDigit((char)next) && (currentType == null || currentType == TokenType.INT))
                         {
-                            data.add(next);
+                            data.add(next - '0');
                             currentType = TokenType.INT;
                         }
                         else if(Character.isAlphabetic((char)next) && currentType == TokenType.INT)
                         {
-                            String temp = data.stream().map(Object::toString).collect(Collectors.joining());
+                            String temp = data.stream().map((n) -> { return Character.toString(n); }).collect(Collectors.joining());
                             return new Token(TokenType.ERROR, "Unkown Symbol: " + temp);
                         }
                         //Handle IDs and reserved key words
@@ -99,7 +99,7 @@ public class CMinusScanner implements Scanner {
                         }
                         else if(Character.isDigit((char)next) && currentType == TokenType.ID)
                         {
-                            String temp = data.stream().map(Object::toString).collect(Collectors.joining());
+                            String temp = data.stream().map((n) -> { return Character.toString(n); }).collect(Collectors.joining());
                             return new Token(TokenType.ERROR, "Unkown Symbol: " + temp);
                         }
                         else if((char)next == ' ')
