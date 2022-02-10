@@ -88,7 +88,7 @@ public class CMinusScanner implements Scanner {
                         }
                         else if(Character.isAlphabetic((char)next) && currentType == TokenType.INT)
                         {
-                            String temp = data.stream().map((n) -> { return Character.toString(n); }).collect(Collectors.joining());
+                            String temp = data.stream().map((n) -> { return Integer.toString(n); }).collect(Collectors.joining());
                             return new Token(TokenType.ERROR, "Unkown Symbol: " + temp);
                         }
                         //Handle IDs and reserved key words
