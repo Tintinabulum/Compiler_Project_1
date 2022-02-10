@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.util.HashMap;
 import java.util.stream.Collectors;
 import java.util.ArrayList;
+import java.util.ConcurrentModificationException;
 
 import compiler.project1.Token.TokenType;
 
@@ -43,39 +44,236 @@ public class CMinusScanner implements Scanner {
             boolean done = false;
 
             while(next!=-1 && !done){//-1 means EOF
+                inFile.mark(0);
                 switch((char)next){
-                    case '+': 
-                        currentType = (currentType == null ? TokenType.ADD : currentType);
-                        done = true;
-                        break;
-                    case '-': 
-                        currentType = (currentType == null ? TokenType.SUB : currentType);
-                        done = true;
-                        break;
-                    case '*':
-                        currentType = (currentType == null ? TokenType.MULT : currentType);
-                        done = true;
-                        break;
-                    case '/':
-                        inFile.mark(0);
-                        next = inFile.read();
-
-                        //Division
-                        if((char)next!='*'){
+                    case '(':
+                        if(currentType == null)
+                        {
+                            currentType = TokenType.BEGPAR;
+                        }
+                        else
+                        {
                             inFile.reset();
-                            currentType = (currentType == null ? TokenType.DIV : currentType);
-                            done = true;
-                            break;
                         }
 
-                        //Comment
-                        boolean wasStar = false;
-                        next = inFile.read();
-                        while(!(wasStar && (char)next == '/')){
-                            wasStar = next == '*';
+                        done = true;
+                        break;
+
+                    case ')':
+                        if(currentType == null)
+                        {
+                            currentType = TokenType.ENDPAR;
+                        }
+                        else
+                        {
+                            inFile.reset();
+                        }
+
+                        done = true;
+                        break;
+
+                    case '[':
+                        if(currentType == null)
+                        {
+                            currentType = TokenType.BEGSBRA;
+                        }
+                        else
+                        {
+                            inFile.reset();
+                        }
+
+                        done = true;
+                        break;
+
+                    case ']':
+                        if(currentType == null)
+                        {
+                            currentType = TokenType.ENDSBRA;
+                        }
+                        else
+                        {
+                            inFile.reset();
+                        }
+
+                        done = true;
+                        break;
+
+                    case '{':
+                        if(currentType == null)
+                        {
+                            currentType = TokenType.BEGBRA;
+                        }
+                        else
+                        {
+                            inFile.reset();
+                        }
+
+                        done = true;
+                        break;
+
+                    case '}':
+                        if(currentType == null)
+                        {
+                            currentType = TokenType.ENDBRA;
+                        }
+                        else
+                        {
+                            inFile.reset();
+                        }
+
+                        done = true;
+                        break;
+
+                    case ',':
+                        if(currentType == null)
+                        {
+                            currentType = TokenType.COMA;
+                        }
+                        else
+                        {
+                            inFile.reset();
+                        }
+
+                        done = true;
+                        break;
+
+                    case '+': 
+                        if(currentType == null)
+                        {
+                            currentType = TokenType.ADD;
+                        }
+                        else
+                        {
+                            inFile.reset();
+                        }
+
+                        done = true;
+                        break;
+
+                    case '-': 
+                        if(currentType == null)
+                        {
+                            currentType = TokenType.SUB;
+                        }
+                        else
+                        {
+                            inFile.reset();
+                        }
+                        done = true;
+                        break;
+
+                    case '*':
+                        if(currentType == null)
+                        {
+                            currentType = TokenType.MULT;
+                            done = true;
+                        }
+                        else if(currentType == TokenType.DIV) //Throw away comment
+                        {
+                            next = inFile.read();
+                            inFile.mark(0);
+                            while(next != -1 && next != '*' && inFile.read() != '/')
+                            {
+                                inFile.reset();
+                                next = inFile.read();
+                                inFile.mark(0);
+                            }
+                            //reset state
+                            currentType = null;
+                        }
+                        else
+                        {
+                            inFile.reset();
+                            done = true;
+                        }
+                        break;
+
+                    case '<':
+                        if(currentType == null)
+                        {
+                            currentType = TokenType.LESS;
                             next = inFile.read();
                         }
-                        //Ignore comments
+                        else
+                        {
+                            inFile.reset();
+                            done = true;
+                        }
+                        break;
+
+                    case '>':
+                        if(currentType == null)
+                        {
+                            currentType = TokenType.GRE;
+                            next = inFile.read();
+                        }
+                        else
+                        {
+                            inFile.reset();
+                            done = true;
+                        }
+
+                    break;
+
+                    case '!':
+                        if(currentType == null)
+                        {
+                            inFile.mark(0);
+                            if(inFile.read() == '=')
+                            {
+                                currentType = TokenType.NOTEQUAL;
+                            }
+                            else
+                            {
+                                inFile.reset();
+                                return new Token(Token.TokenType.ERROR,"Unknown symbol: " + (char)next);
+                            }
+                        }
+                        else
+                        {
+                            inFile.reset();
+                            done = true;
+                        }
+
+                    case '=':
+                        if(currentType == null)
+                        {
+                            currentType = TokenType.EQUAL;
+                            next = inFile.read();
+                        }
+                        else if(currentType == TokenType.LESS)
+                        {
+                            currentType = TokenType.LESSEQU;
+                            done = true;
+                        }
+                        else if(currentType == TokenType.GRE)
+                        {
+                            currentType = TokenType.GREEQU;
+                            done = true;
+                        }
+                        else if(currentType == TokenType.EQUAL)
+                        {
+                            currentType = TokenType.ASSIGN;
+                            done = true;
+                        }
+                        else
+                        {
+                            inFile.reset();
+                            done = true;
+                        }
+                        break;
+
+                    case '/':
+                        if(currentType == null)
+                        {
+                            currentType = TokenType.DIV;
+                            next = inFile.read();
+                        }
+                        else
+                        {
+                            inFile.reset();
+                            done = true;
+                        }
                         break;
 
                     //Needs more cases
@@ -84,17 +282,19 @@ public class CMinusScanner implements Scanner {
                         if(Character.isDigit((char)next) && (currentType == null || currentType == TokenType.INT))
                         {
                             data.add(next - '0');
+                            next = inFile.read();
                             currentType = TokenType.INT;
                         }
                         else if(Character.isAlphabetic((char)next) && currentType == TokenType.INT)
                         {
-                            String temp = data.stream().map((n) -> { return Integer.toString(n); }).collect(Collectors.joining());
+                            String temp = data.stream().map((n) -> { return Integer.toString(n); } ).collect(Collectors.joining());
                             return new Token(TokenType.ERROR, "Unkown Symbol: " + temp);
                         }
                         //Handle IDs and reserved key words
                         else if(Character.isAlphabetic((char)next) && (currentType == null || currentType == TokenType.ID))
                         {
                             data.add(next);
+                            next = inFile.read();
                             currentType = TokenType.ID;
                         }
                         else if(Character.isDigit((char)next) && currentType == TokenType.ID)
@@ -102,17 +302,14 @@ public class CMinusScanner implements Scanner {
                             String temp = data.stream().map((n) -> { return Character.toString(n); }).collect(Collectors.joining());
                             return new Token(TokenType.ERROR, "Unkown Symbol: " + temp);
                         }
-                        else if((char)next == ' ')
+                        else if(currentType != null)
                         {
-                            if(currentType == TokenType.ID || currentType == TokenType.INT)
-                            {
-                                done = true;
-                            }
-
-                            break;
+                            done = true;
                         }
-                        else
+                        else if(next != ' ')
+                        {
                             return new Token(Token.TokenType.ERROR,"Unknown symbol: " + (char)next);
+                        }
                 }
             }
 
@@ -134,6 +331,14 @@ public class CMinusScanner implements Scanner {
 
                 return new Token(currentType, temp);
             }
+
+            //Loop never ran, so we must be EOF
+            if(currentType == null)
+            {
+                currentType = TokenType.EOF;
+            }
+
+            return new Token(currentType);
 
         }catch(IOException error){//Can happen for comments
              //Do nothing - we ignore comments
