@@ -4,7 +4,6 @@ import java.io.IOException;
 import java.util.HashMap;
 import java.util.stream.Collectors;
 import java.util.ArrayList;
-import java.util.ConcurrentModificationException;
 
 import compiler.project1.Token.TokenType;
 
