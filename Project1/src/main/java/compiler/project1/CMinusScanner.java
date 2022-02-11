@@ -1,11 +1,16 @@
 package compiler.project1;
 import java.io.BufferedReader;
 import java.io.IOException;
+import java.io.FileReader;
+import java.io.FileWriter;
 import java.util.HashMap;
 import java.util.stream.Collectors;
 import java.util.ArrayList;
 
 import compiler.project1.Token.TokenType;
+import java.io.FileNotFoundException;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 public class CMinusScanner implements Scanner {
     private BufferedReader inFile;
@@ -27,6 +32,7 @@ public class CMinusScanner implements Scanner {
     
     public Token getNextToken () {
         Token returnToken = nextToken;
+        //Scan the next token if the current is not EOF
         if (nextToken.getType() != Token.TokenType.EOF)
             nextToken = scanToken();
         return returnToken;
@@ -42,7 +48,7 @@ public class CMinusScanner implements Scanner {
             TokenType currentType = null;
             boolean done = false;
 
-            while(next!=-1 && !done){//-1 means EOF
+            while(next != -1 && !done){//-1 means EOF
                 inFile.mark(0);
                 switch((char)next){
                     case '(':
@@ -153,6 +159,17 @@ public class CMinusScanner implements Scanner {
                         if(currentType == null)
                         {
                             currentType = TokenType.SUB;
+                        }
+                        else
+                        {
+                            inFile.reset();
+                        }
+                        done = true;
+                        break;
+                    case ';': 
+                        if(currentType == null)
+                        {
+                            currentType = TokenType.SEMICOLON;
                         }
                         else
                         {
@@ -343,5 +360,34 @@ public class CMinusScanner implements Scanner {
              //Do nothing - we ignore comments
         }
         return new Token(Token.TokenType.EOF); 
+    }
+    public static void main (String[] args) {
+        try{
+            FileReader inFile = new FileReader("input.txt");
+            FileWriter outFile = new FileWriter("output.txt");
+            
+            BufferedReader brFile = new BufferedReader(inFile);
+            CMinusScanner cMinScan = new CMinusScanner(brFile);
+            
+            
+            //Scan through all the tokens until it reaches EOF
+            while (cMinScan.viewNextToken().getType() != Token.TokenType.EOF){
+                //Print out data if it's not null
+                if (cMinScan.viewNextToken().getData() != null){
+                    outFile.write((cMinScan.getNextToken().getData()).toString() + "\n");
+                }
+                //Move on to next token
+                else {
+                    cMinScan.getNextToken();
+                }
+            }
+            
+            inFile.close();
+            outFile.close();
+        } catch (FileNotFoundException ex) {
+            Logger.getLogger(CMinusScanner.class.getName()).log(Level.SEVERE, null, ex);
+        } catch (IOException ex) {
+            Logger.getLogger(CMinusScanner.class.getName()).log(Level.SEVERE, null, ex);
+        }
     }
 }
