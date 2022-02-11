@@ -1,4 +1,8 @@
 void main(int a , int b){
-int sum1 = 10 + 25;
-int diff1 = 20 - 21;
+int sum = 10 + 25;
+/*Testing a comment*/
+13 * 4;
+43 / 234;
+int j = a[0];
+int diff = 20 - 21;
 }

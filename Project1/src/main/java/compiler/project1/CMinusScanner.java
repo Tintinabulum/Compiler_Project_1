@@ -5,6 +5,7 @@ import java.io.FileReader;
 import java.io.FileWriter;
 import java.util.HashMap;
 import java.util.stream.Collectors;
+
 import java.util.ArrayList;
 
 import compiler.project1.Token.TokenType;
@@ -49,7 +50,6 @@ public class CMinusScanner implements Scanner {
             boolean done = false;
 
             while(next != -1 && !done){//-1 means EOF
-                inFile.mark(0);
                 switch((char)next){
                     case '(':
                         if(currentType == null)
@@ -196,6 +196,8 @@ public class CMinusScanner implements Scanner {
                             }
                             //reset state
                             currentType = null;
+                            inFile.read(); //Skip past last '/' of comment
+                            next = inFile.read();
                         }
                         else
                         {
@@ -254,7 +256,7 @@ public class CMinusScanner implements Scanner {
                     case '=':
                         if(currentType == null)
                         {
-                            currentType = TokenType.EQUAL;
+                            currentType = TokenType.ASSIGN;
                             next = inFile.read();
                         }
                         else if(currentType == TokenType.LESS)
@@ -267,9 +269,9 @@ public class CMinusScanner implements Scanner {
                             currentType = TokenType.GREEQU;
                             done = true;
                         }
-                        else if(currentType == TokenType.EQUAL)
+                        else if(currentType == TokenType.ASSIGN)
                         {
-                            currentType = TokenType.ASSIGN;
+                            currentType = TokenType.EQUAL;
                             done = true;
                         }
                         else
@@ -283,6 +285,7 @@ public class CMinusScanner implements Scanner {
                         if(currentType == null)
                         {
                             currentType = TokenType.DIV;
+                            inFile.mark(0);
                             next = inFile.read();
                         }
                         else
@@ -298,6 +301,7 @@ public class CMinusScanner implements Scanner {
                         if(Character.isDigit((char)next) && (currentType == null || currentType == TokenType.INT))
                         {
                             data.add(next - '0');
+                            inFile.mark(0);
                             next = inFile.read();
                             currentType = TokenType.INT;
                         }
@@ -310,6 +314,7 @@ public class CMinusScanner implements Scanner {
                         else if(Character.isAlphabetic((char)next) && (currentType == null || currentType == TokenType.ID))
                         {
                             data.add(next);
+                            inFile.mark(0);
                             next = inFile.read();
                             currentType = TokenType.ID;
                         }
@@ -322,7 +327,11 @@ public class CMinusScanner implements Scanner {
                         {
                             done = true;
                         }
-                        else if(next != ' ')
+                        else if(next == ' ' || next == '\n' || next == '\r')
+                        {
+                            next = inFile.read();
+                        }
+                        else
                         {
                             return new Token(Token.TokenType.ERROR,"Unknown symbol: " + (char)next);
                         }
@@ -334,7 +343,7 @@ public class CMinusScanner implements Scanner {
                 int num = 0;
                 for(int n : data)
                 {
-                    num *= 10 + n;
+                    num = num * 10 + n;
                 }
 
                 return new Token(currentType, num);
@@ -363,8 +372,8 @@ public class CMinusScanner implements Scanner {
     }
     public static void main (String[] args) {
         try{
-            FileReader inFile = new FileReader("input.txt");
-            FileWriter outFile = new FileWriter("output.txt");
+            FileReader inFile = new FileReader("Project1/input.txt");
+            FileWriter outFile = new FileWriter("Project1/output.txt");
             
             BufferedReader brFile = new BufferedReader(inFile);
             CMinusScanner cMinScan = new CMinusScanner(brFile);
@@ -372,14 +381,15 @@ public class CMinusScanner implements Scanner {
             
             //Scan through all the tokens until it reaches EOF
             while (cMinScan.viewNextToken().getType() != Token.TokenType.EOF){
-                //Print out data if it's not null
-                if (cMinScan.viewNextToken().getData() != null){
-                    outFile.write((cMinScan.getNextToken().getData()).toString() + "\n");
+
+                Token t = cMinScan.getNextToken();
+                String output = t.getType().name();
+                if(t.getData() != null)
+                {
+                    output += ": " + t.getData();
                 }
-                //Move on to next token
-                else {
-                    cMinScan.getNextToken();
-                }
+
+                outFile.write(output + "\n");
             }
             
             inFile.close();
