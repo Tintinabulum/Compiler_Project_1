@@ -23,13 +23,13 @@
    this could be optimized */
 
 
-import java_cup.runtime.*;
+package compiler.project1;
 import Token.TokenType;
 
 
 // See https://github.com/jflex-de/jflex/issues/222
 @SuppressWarnings("FallThrough")
-public class CMinusScanner2 extends Scanner implements java_cup.runtime.Scanner {
+public class CMinusScanner2 implements Scanner {
 
   /** This character denotes the end of file. */
   public static final int YYEOF = -1;
@@ -325,6 +325,7 @@ public class CMinusScanner2 extends Scanner implements java_cup.runtime.Scanner 
   private boolean zzAtBOL = true;
 
   /** Whether the user-EOF-code has already been executed. */
+  @SuppressWarnings("unused")
   private boolean zzEOFDone;
 
   /* user code: */
@@ -582,18 +583,6 @@ public class CMinusScanner2 extends Scanner implements java_cup.runtime.Scanner 
   }
 
 
-  /**
-   * Contains user EOF-code, which will be executed exactly once,
-   * when the end of file is reached
-   */
-  private void zzDoEOF() throws java.io.IOException {
-    if (!zzEOFDone) {
-      zzEOFDone = true;
-    
-  yyclose();    }
-  }
-
-
 
 
   /**
@@ -603,7 +592,7 @@ public class CMinusScanner2 extends Scanner implements java_cup.runtime.Scanner 
    * @return the next token.
    * @exception java.io.IOException if any I/O-Error occurs.
    */
-  @Override  public java_cup.runtime.Symbol next_token() throws java.io.IOException {
+  public Yytoken yylex() throws java.io.IOException {
     int zzInput;
     int zzAction;
 
@@ -739,7 +728,6 @@ public class CMinusScanner2 extends Scanner implements java_cup.runtime.Scanner 
 
       if (zzInput == YYEOF && zzStartRead == zzCurrentPos) {
         zzAtEOF = true;
-            zzDoEOF();
               {
                 return symbol(EOF);
               }
@@ -889,86 +877,6 @@ public class CMinusScanner2 extends Scanner implements java_cup.runtime.Scanner 
           case 56: break;
           default:
             zzScanError(ZZ_NO_MATCH);
-        }
-      }
-    }
-  }
-
-  /**
-   * Converts an int token code into the name of the
-   * token by reflection on the cup symbol class/interface sym
-   */
-  private static String getTokenName(int token) {
-    try {
-      java.lang.reflect.Field [] classFields = sym.class.getFields();
-      for (int i = 0; i < classFields.length; i++) {
-        if (classFields[i].getInt(null) == token) {
-          return classFields[i].getName();
-        }
-      }
-    } catch (Exception e) {
-      e.printStackTrace(System.err);
-    }
-
-    return "UNKNOWN TOKEN";
-  }
-
-  /**
-   * Same as next_token but also prints the token to standard out
-   * for debugging.
-   */
-  public java_cup.runtime.Symbol debug_next_token() throws java.io.IOException {
-    java_cup.runtime.Symbol s = next_token();
-    System.out.println( "line:" + (yyline+1) + " col:" + (yycolumn+1) + " --"+ yytext() + "--" + getTokenName(s.sym) + "--");
-    return s;
-  }
-
-  /**
-   * Runs the scanner on input files.
-   *
-   * This main method is the debugging routine for the scanner.
-   * It prints debugging information about each returned token to
-   * System.out until the end of file is reached, or an error occured.
-   *
-   * @param argv   the command line, contains the filenames to run
-   *               the scanner on.
-   */
-  public static void main(String[] argv) {
-    if (argv.length == 0) {
-      System.out.println("Usage : java CMinusScanner2 [ --encoding <name> ] <inputfile(s)>");
-    }
-    else {
-      int firstFilePos = 0;
-      String encodingName = "UTF-8";
-      if (argv[0].equals("--encoding")) {
-        firstFilePos = 2;
-        encodingName = argv[1];
-        try {
-          // Side-effect: is encodingName valid?
-          java.nio.charset.Charset.forName(encodingName);
-        } catch (Exception e) {
-          System.out.println("Invalid encoding '" + encodingName + "'");
-          return;
-        }
-      }
-      for (int i = firstFilePos; i < argv.length; i++) {
-        CMinusScanner2 scanner = null;
-        try {
-          java.io.FileInputStream stream = new java.io.FileInputStream(argv[i]);
-          java.io.Reader reader = new java.io.InputStreamReader(stream, encodingName);
-          scanner = new CMinusScanner2(reader);
-          while ( !scanner.zzAtEOF ) scanner.debug_next_token();
-        }
-        catch (java.io.FileNotFoundException e) {
-          System.out.println("File not found : \""+argv[i]+"\"");
-        }
-        catch (java.io.IOException e) {
-          System.out.println("IO error scanning file \""+argv[i]+"\"");
-          System.out.println(e);
-        }
-        catch (Exception e) {
-          System.out.println("Unexpected exception:");
-          e.printStackTrace();
         }
       }
     }
