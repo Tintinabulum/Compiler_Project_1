@@ -4,7 +4,7 @@
 
 
 package compiler.project1;
-import Token.TokenType;
+import Token.Token.TokenType;
 
 
 // See https://github.com/jflex-de/jflex/issues/222
@@ -314,7 +314,7 @@ public class CMinusScanner2 implements Scanner {
 	public Token getNextToken()
 	{
 		Token returnT = nextToken;
-		if(returnT.getType() != TokenType.EOF) nextToken = yylex();
+		if(returnT.getType() != Token.TokenType.EOF) nextToken = yylex();
 		return returnT;
 	}
 	
@@ -540,7 +540,7 @@ public class CMinusScanner2 implements Scanner {
    *
    * @param errorCode the code of the error message to display.
    */
-  private static void zzScanError(int errorCode) {
+  private static void zzScanError(int errorCode) throws CMinusScannerException {
     String message;
     try {
       message = ZZ_ERROR_MSG[errorCode];
@@ -548,7 +548,7 @@ public class CMinusScanner2 implements Scanner {
       message = ZZ_ERROR_MSG[ZZ_UNKNOWN_ERROR];
     }
 
-    throw new Error(message);
+    throw new CMinusScannerException(message);
   }
 
 
@@ -560,7 +560,7 @@ public class CMinusScanner2 implements Scanner {
    * @param number the number of characters to be read again. This number must not be greater than
    *     {@link #yylength()}.
    */
-  public void yypushback(int number)  {
+  public void yypushback(int number)  throws CMinusScannerException {
     if ( number > yylength() )
       zzScanError(ZZ_PUSHBACK_2BIG);
 
@@ -577,7 +577,7 @@ public class CMinusScanner2 implements Scanner {
    * @return the next token.
    * @exception java.io.IOException if any I/O-Error occurs.
    */
-  public Yytoken yylex() throws java.io.IOException {
+  public Yytoken yylex() throws java.io.IOException, CMinusScannerException {
     int zzInput;
     int zzAction;
 
@@ -731,37 +731,37 @@ public class CMinusScanner2 implements Scanner {
             // fall through
           case 30: break;
           case 3:
-            { return TokenType.BEGPAR;
+            { return Token.TokenType.BEGPAR;
             }
             // fall through
           case 31: break;
           case 4:
-            { return TokenType.ENDPAR;
+            { return Token.TokenType.ENDPAR;
             }
             // fall through
           case 32: break;
           case 5:
-            { return TokenType.MULT;
+            { return Token.TokenType.MULT;
             }
             // fall through
           case 33: break;
           case 6:
-            { return TokenType.ADD;
+            { return Token.TokenType.ADD;
             }
             // fall through
           case 34: break;
           case 7:
-            { return TokenType.COMA;
+            { return Token.TokenType.COMA;
             }
             // fall through
           case 35: break;
           case 8:
-            { return TokenType.SUB;
+            { return Token.TokenType.SUB;
             }
             // fall through
           case 36: break;
           case 9:
-            { return TokenType.DIV;
+            { return Token.TokenType.DIV;
             }
             // fall through
           case 37: break;
@@ -771,22 +771,22 @@ public class CMinusScanner2 implements Scanner {
             // fall through
           case 38: break;
           case 11:
-            { return TokenType.SEMICOLON;
+            { return Token.TokenType.SEMICOLON;
             }
             // fall through
           case 39: break;
           case 12:
-            { return TokenType.GRE;
+            { return Token.TokenType.GRE;
             }
             // fall through
           case 40: break;
           case 13:
-            { return TokenType.EQUAL;
+            { return Token.TokenType.EQUAL;
             }
             // fall through
           case 41: break;
           case 14:
-            { return TokenType.LESS;
+            { return Token.TokenType.LESS;
             }
             // fall through
           case 42: break;
@@ -796,67 +796,67 @@ public class CMinusScanner2 implements Scanner {
             // fall through
           case 43: break;
           case 16:
-            { return TokenType.BEGSBRA;
+            { return Token.TokenType.BEGSBRA;
             }
             // fall through
           case 44: break;
           case 17:
-            { return TokenType.ENDSBRA;
+            { return Token.TokenType.ENDSBRA;
             }
             // fall through
           case 45: break;
           case 18:
-            { return TokenType.BEGBRA;
+            { return Token.TokenType.BEGBRA;
             }
             // fall through
           case 46: break;
           case 19:
-            { return TokenType.ENDBRA;
+            { return Token.TokenType.ENDBRA;
             }
             // fall through
           case 47: break;
           case 20:
-            { return TokenType.NOTEQUAL;
+            { return Token.TokenType.NOTEQUAL;
             }
             // fall through
           case 48: break;
           case 21:
-            { return TokenType.LESSEQU;
+            { return Token.TokenType.LESSEQU;
             }
             // fall through
           case 49: break;
           case 22:
-            { return TokenType.GREEQU;
+            { return Token.TokenType.GREEQU;
             }
             // fall through
           case 50: break;
           case 23:
-            { return TokenType.IF;
+            { return Token.TokenType.IF;
             }
             // fall through
           case 51: break;
           case 24:
-            { return TokenType.INT;
+            { return Token.TokenType.INT;
             }
             // fall through
           case 52: break;
           case 25:
-            { return TokenType.ELSE;
+            { return Token.TokenType.ELSE;
             }
             // fall through
           case 53: break;
           case 26:
-            { return TokenType.VOID;
+            { return Token.TokenType.VOID;
             }
             // fall through
           case 54: break;
           case 27:
-            { return TokenType.WHILE;
+            { return Token.TokenType.WHILE;
             }
             // fall through
           case 55: break;
           case 28:
-            { return TokenType.RETURN;
+            { return Token.TokenType.RETURN;
             }
             // fall through
           case 56: break;
