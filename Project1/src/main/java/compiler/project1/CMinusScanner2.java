@@ -4,7 +4,6 @@
 
 
 package compiler.project1;
-import Token.Token.TokenType;
 
 
 // See https://github.com/jflex-de/jflex/issues/222
