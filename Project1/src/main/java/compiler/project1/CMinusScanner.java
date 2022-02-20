@@ -372,11 +372,11 @@ public class CMinusScanner implements Scanner {
     }
     public static void main (String[] args) {
         try{
-            FileReader inFile = new FileReader("Project1/input.txt");
-            FileWriter outFile = new FileWriter("Project1/output.txt");
+            FileReader inFile = new FileReader("input.txt");
+            FileWriter outFile = new FileWriter("output.txt");
             
             BufferedReader brFile = new BufferedReader(inFile);
-            CMinusScanner cMinScan = new CMinusScanner(brFile);
+            CMinusScanner2 cMinScan = new CMinusScanner2(brFile);
             
             
             //Scan through all the tokens until it reaches EOF
