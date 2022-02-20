@@ -372,8 +372,8 @@ public class CMinusScanner implements Scanner {
     }
     public static void main (String[] args) {
         try{
-            FileReader inFile = new FileReader("input.txt");
-            FileWriter outFile = new FileWriter("output.txt");
+            FileReader inFile = new FileReader("Compiler_Project_1\\Project1\\input.txt");
+            FileWriter outFile = new FileWriter("Compiler_Project_1\\Project1\\output.txt");
             
             BufferedReader brFile = new BufferedReader(inFile);
             CMinusScanner2 cMinScan = new CMinusScanner2(brFile);
@@ -391,6 +391,8 @@ public class CMinusScanner implements Scanner {
 
                 outFile.write(output + "\n");
             }
+
+            outFile.write(cMinScan.getNextToken().getType().name());
             
             inFile.close();
             outFile.close();

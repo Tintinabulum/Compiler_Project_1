@@ -311,26 +311,22 @@ public class CMinusScanner2 implements Scanner {
   /* user code: */
   private Token nextToken;
 
-  private Token next()
-  {
-    try
+	public Token getNextToken()
+	{
+    Token t;
+    try 
     {
-      return yylex();
+      if(nextToken == null)
+        nextToken = yylex();
+
+      t = nextToken;
+      if(t.getType() != Token.TokenType.EOF)
+      {
+          nextToken = yylex();
+      }
     } catch(IOException e)
     {
       throw new CMinusScannerException(e.toString());
-    }
-  }
-
-	public Token getNextToken()
-	{
-    if(nextToken == null)
-      nextToken = next();
-
-    Token t = nextToken;
-    if(t.getType() != Token.TokenType.EOF)
-    {
-        nextToken = next();
     }
 
     return t;
@@ -338,9 +334,6 @@ public class CMinusScanner2 implements Scanner {
 	
 	public Token viewNextToken()
 	{
-    if(nextToken == null)
-      nextToken = next();
-
 		return nextToken;
 	}
 

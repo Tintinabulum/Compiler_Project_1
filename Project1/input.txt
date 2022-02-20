@@ -51,7 +51,7 @@ int difference(int a, int b){
 
 /* returns n factorial */
 int factorial(int n){
-    int x = n - 1;
+
     if (n == 0){
         return 1;
     }
@@ -59,6 +59,8 @@ int factorial(int n){
     if (n < 0){
         return -1;
     }
-    int fact = n * x;
-    return fact;
+
+    return n * factorial(n - 1);
 }
+
+int sub(int a, int b){int sum=a-b;return sum;}

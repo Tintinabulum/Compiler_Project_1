@@ -1,5 +1,6 @@
 
 package compiler.project1;
+import java.io.IOException;
 
 %%
 
@@ -7,30 +8,54 @@ package compiler.project1;
 %class CMinusScanner2
 %implements Scanner
 
+%type Token
+
 %unicode
 
 %line
 %column
 
 %scanerror CMinusScannerException
+%yylexthrow CMinusScannerException
 
 %init{
-	nextToken = getNextToken();
+  nextToken = null;
 %init}
 
 
 %{
-	private Token nextToken;
+  private Token nextToken;
+
+  private Token next()
+  {
+    try
+    {
+      return yylex();
+    } catch(IOException e)
+    {
+      throw new CMinusScannerException(e.toString());
+    }
+  }
 
 	public Token getNextToken()
 	{
-		Token returnT = nextToken;
-		if(returnT.getType() != Token.TokenType.EOF) nextToken = yylex();
-		return returnT;
+    if(nextToken == null)
+      nextToken = next();
+
+    Token t = nextToken;
+    if(t.getType() != Token.TokenType.EOF)
+    {
+        nextToken = next();
+    }
+
+    return t;
 	}
 	
 	public Token viewNextToken()
 	{
+    if(nextToken == null)
+      nextToken = next();
+
 		return nextToken;
 	}
 %}
@@ -58,35 +83,35 @@ DecIntegerLiteral = [0-9]+
 <YYINITIAL> {
 
   /* keywords */
-  "else"		{ return Token.TokenType.ELSE;   }
-  "if"			{ return Token.TokenType.IF;	   } 
-  "int"			{ return Token.TokenType.INT;	   }
-  "return"		{ return Token.TokenType.RETURN; }
-  "void"		{ return Token.TokenType.VOID;   }
-  "while"		{ return Token.TokenType.WHILE;  }
+  "else"		{ return new Token(Token.TokenType.ELSE);   }
+  "if"			{ return new Token(Token.TokenType.IF);	   } 
+  "int"			{ return new Token(Token.TokenType.INT);	   }
+  "return"	{ return new Token(Token.TokenType.RETURN); }
+  "void"		{ return new Token(Token.TokenType.VOID);   }
+  "while"		{ return new Token(Token.TokenType.WHILE);  }
     
   /* separators */
-  "("                            { return Token.TokenType.BEGPAR; 	}
-  ")"                            { return Token.TokenType.ENDPAR; 	}
-  "{"                            { return Token.TokenType.BEGBRA; 	}
-  "}"                            { return Token.TokenType.ENDBRA; 	}
-  "["                            { return Token.TokenType.BEGSBRA; 	}
-  "]"                            { return Token.TokenType.ENDSBRA; 	}
-  ";"                            { return Token.TokenType.SEMICOLON;  }
-  ","                            { return Token.TokenType.COMA;		}
+  "("                            { return new Token(Token.TokenType.BEGPAR); 	}
+  ")"                            { return new Token(Token.TokenType.ENDPAR); 	}
+  "{"                            { return new Token(Token.TokenType.BEGBRA); 	}
+  "}"                            { return new Token(Token.TokenType.ENDBRA); 	}
+  "["                            { return new Token(Token.TokenType.BEGSBRA); 	}
+  "]"                            { return new Token(Token.TokenType.ENDSBRA); 	}
+  ";"                            { return new Token(Token.TokenType.SEMICOLON);  }
+  ","                            { return new Token(Token.TokenType.COMA);		}
   
   /* operators */
-  "="                            { return Token.TokenType.EQUAL;		}
-  ">"                            { return Token.TokenType.LESS;		}
-  "<"                            { return Token.TokenType.GRE;		}
-  "=="                           { return Token.TokenType.EQUAL;		}
-  "<="                           { return Token.TokenType.LESSEQU;	}
-  ">="                           { return Token.TokenType.GREEQU;		}
-  "!="                           { return Token.TokenType.NOTEQUAL;	}
-  "+"                            { return Token.TokenType.ADD;		}
-  "-"                            { return Token.TokenType.SUB;		}
-  "*"                            { return Token.TokenType.MULT;		}
-  "/"                            { return Token.TokenType.DIV;		}
+  "="                            { return new Token(Token.TokenType.EQUAL);		}
+  ">"                            { return new Token(Token.TokenType.LESS);		}
+  "<"                            { return new Token(Token.TokenType.GRE);		}
+  "=="                           { return new Token(Token.TokenType.EQUAL);		}
+  "<="                           { return new Token(Token.TokenType.LESSEQU);	}
+  ">="                           { return new Token(Token.TokenType.GREEQU);		}
+  "!="                           { return new Token(Token.TokenType.NOTEQUAL);	}
+  "+"                            { return new Token(Token.TokenType.ADD);		}
+  "-"                            { return new Token(Token.TokenType.SUB);		}
+  "*"                            { return new Token(Token.TokenType.MULT);		}
+  "/"                            { return new Token(Token.TokenType.DIV);		}
 
   /* numeric literals */
 
@@ -94,7 +119,7 @@ DecIntegerLiteral = [0-9]+
      be represented by a positive integer. 
   "-2147483648"                  { return symbol(INTEGER_LITERAL, Integer.valueOf(Integer.MIN_VALUE)); }*/
   
-  {DecIntegerLiteral}            { return symbol(INTEGER_LITERAL, Integer.valueOf(yytext())); }
+  {DecIntegerLiteral}            { return new Token(Token.TokenType.NUM, Integer.valueOf(yytext())); }
   
   /* comments */
   {Comment}                      { /* ignore */ }
@@ -103,10 +128,10 @@ DecIntegerLiteral = [0-9]+
   {WhiteSpace}                   { /* ignore */ }
 
   /* identifiers */ 
-  {Identifier}                   { return symbol(IDENTIFIER, yytext()); }  
+  {Identifier}                   { return new Token(Token.TokenType.ID, yytext()); }  
 }
 
 /* error fallback */
-[^]                              { throw new RuntimeException("Illegal character \""+yytext()+
+[^]                              { throw new CMinusScannerException("Illegal character \""+yytext()+
                                                               "\" at line "+yyline+", column "+yycolumn); }
-<<EOF>>                          { return symbol(EOF); }
+<<EOF>>                          { return new Token(Token.TokenType.EOF); }
